@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:jbd_bms_android/services/pipHeartbeat.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/bms_data.dart';
@@ -14,7 +15,6 @@ import '../services/foreground_task_handler.dart';
 import '../widgets/metric_card.dart';
 import '../widgets/cell_bar.dart';
 import 'scan_screen.dart';
-import 'package:simple_pip_mode/simple_pip.dart';
 
 bool isInPIP = false;
 
@@ -124,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen>
         });
       });
       _ble.connect(widget.device!);
+      AutoPip(setState((){}));
     }
   }
 
@@ -306,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scaffold(
       backgroundColor: _bg,
-      appBar: isInPIP ? _buildAppBar() : null,
+      appBar: isInPIP == false ? _buildAppBar() : null,
       body: body,
     );
   }
@@ -428,32 +429,6 @@ class _HomeScreenState extends State<HomeScreen>
                   },
                 ),
               ),
-              Column(
-                children: [
-                  const Divider(color: Color(0xFF30363d), height: 16),
-              Center(
-                child: Text("Modo de janela:"),
-              ),
-              SizedBox(
-                width: double.infinity,
-                  child: OutlinedButton.icon(
-                      icon: const Icon(Icons.picture_in_picture_alt_rounded,
-                          color: Color.fromARGB(255, 234, 255, 0), size: 18),
-                      label: const Text('Modo PIP',
-                          style: TextStyle(color: Color.fromARGB(255, 234, 255, 0), fontSize: 13)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color.fromARGB(255, 234, 255, 0)),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                      ),
-                      onPressed: () {
-                        setS(() => Navigator.pop(ctx));
-                        _enterPIPMode();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(color: Color(0xFF30363d), height: 16),
               const SizedBox(height: 4),
             ],
           ),
@@ -521,19 +496,6 @@ class _HomeScreenState extends State<HomeScreen>
         ],
       ),
     );
-  }
-
-  void _enterPIPMode(){
-    SimplePip(
-      onPipEntered:(){
-        isInPIP = true;
-        setState(() {});
-      },
-      onPipExited: (){
-        isInPIP = false;
-        setState(() {});
-      },
-    ).enterPipMode();
   }
 
   void _showRawDialog() {
